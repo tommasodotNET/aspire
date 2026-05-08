@@ -446,7 +446,9 @@ public static class FoundryExtensions
                 },
                 (infrastructure) =>
                 {
-                    var accountName = ToLower(Take(Concat(infrastructure.AspireResource.Name, GetUniqueString(GetResourceGroup().Id)), 24));
+                    // Cognitive Services account names are limited to 64 characters; reserve room for the unique suffix.
+                    var accountNamePrefix = infrastructure.AspireResource.Name[..Math.Min(infrastructure.AspireResource.Name.Length, 50)];
+                    var accountName = ToLower(Interpolate($"{accountNamePrefix}-{GetUniqueString(GetResourceGroup().Id)}"));
 
                     return new CognitiveServicesAccount(infrastructure.AspireResource.GetBicepIdentifier())
                     {
